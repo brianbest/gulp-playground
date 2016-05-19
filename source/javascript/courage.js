@@ -4,5 +4,6 @@ var b = 4;
 var c = a * b + 1; 
 
 function makingstuffUP(params) {
-   console.log(params);  
+   console.log(params);
+      
 }   

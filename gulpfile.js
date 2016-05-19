@@ -4,7 +4,8 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
     concat = require('gulp-concat')
-    uglify = require('gulp-uglify');
+    uglify = require('gulp-uglify'),
+    livereload = require('gulp-livereload');
     
 gulp.task('default',['jshint','watch']);
 
@@ -21,9 +22,26 @@ gulp.task('build-js',function(){
         //.pipe(gulp.env.type === 'production' ? uglify() : gutils.noop())
         .pipe(uglify())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('public/assets/javascript')); 
+    .pipe(gulp.dest('public/assets/javascript')).on('error', gutils.log)
+    .pipe(livereload());
+});
+
+gulp.task('build-css', function() {
+   return gulp.src('source/scss/**/*.scss') 
+    .pipe(sass())
+    .pipe(gulp.dest('public/assets/stylesheets')).on('error', gutils.log)
+    .pipe(livereload());
+});
+
+gulp.task('build-html', function() {
+   return gulp.src('source/**/*.html') 
+    .pipe(gulp.dest('public'))
+    .pipe(livereload());
 });
 
 gulp.task('watch',function() {
-   gulp.watch('source/javascript/**/*.js',['jshint','build-js']); 
+    livereload.listen();
+        gulp.watch('source/javascript/**/*.js',['jshint','build-js']); 
+        gulp.watch('source/scss/**/*.scss',['build-css']); 
+        gulp.watch('source/**/*.html',['build-html']); 
 });    
