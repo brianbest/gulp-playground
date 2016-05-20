@@ -5,7 +5,10 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     concat = require('gulp-concat')
     uglify = require('gulp-uglify'),
-    livereload = require('gulp-livereload');
+    livereload = require('gulp-livereload'),
+    browserify = require('browserify'),
+    source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer');
     
 gulp.task('default',['jshint','watch']);
 
@@ -16,14 +19,32 @@ gulp.task('jshint',function(){
     
 });
 gulp.task('build-js',function(){
-   return gulp.src('source/javascript/**/*.js')
-    .pipe(sourcemaps.init())
-        .pipe(concat('bundle.js'))
-        //.pipe(gulp.env.type === 'production' ? uglify() : gutils.noop())
+   
+   // set up the browserify instance on a task basis
+    var b = browserify({
+        
+        debug: true
+    }); 
+    return b.bundle()
+    .pipe(source('source/javascript/app.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true}))
+        // Add transformation tasks to the pipeline here.
         .pipe(uglify())
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest('public/assets/javascript')).on('error', gutils.log)
+        .on('error', gutils.log)
+    .pipe(sourcemaps.write('./'))
+    .pipe(gulp.dest('public/assets/javascript'))
     .pipe(livereload());
+    
+    
+//    return gulp.src('source/javascript/**/*.js')
+//     .pipe(sourcemaps.init())
+//         .pipe(concat('bundle.js'))
+//         //.pipe(gulp.env.type === 'production' ? uglify() : gutils.noop())
+//         .pipe(uglify())
+//     .pipe(sourcemaps.write())
+//     .pipe(gulp.dest('public/assets/javascript')).on('error', gutils.log)
+//     .pipe(livereload());
 });
 
 gulp.task('build-css', function() {
