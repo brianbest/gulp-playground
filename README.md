@@ -1,5 +1,9 @@
-# gulp playground
+# Gulp Playground
 
 This is where I'm playing around with Gulp 
 
-Right now this system will compile SASS and lint/concat/uglyfy JS
+- Sass compiler
+- JS linting
+- Browserify & Babel 
+- Source maping & uglyfying 
+
