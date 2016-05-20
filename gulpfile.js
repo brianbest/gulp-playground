@@ -8,7 +8,38 @@ var gulp = require('gulp'),
     livereload = require('gulp-livereload'),
     browserify = require('browserify'),
     source = require('vinyl-source-stream'),
-    buffer = require('vinyl-buffer');
+    buffer = require('vinyl-buffer'),
+    watchify = require('watchify'),
+    babel = require('babelify');
+
+// Browserify Babelify & Watchify on watch
+function compile(watch) {
+  var bundler = watchify(browserify('./source/javascript/app.js', { debug: true }).transform(babel));
+
+  function rebundle() {
+    bundler.bundle()
+      .on('error', function(err) { console.error(err); this.emit('end'); })
+      .pipe(source('app.js'))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({loadMaps: true}))
+        // Add transformation tasks to the pipeline here.
+        .pipe(uglify())
+        .on('error', gutils.log)
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest('public/assets/javascript'))
+      .pipe(livereload());
+  }
+
+  if (watch) {
+    bundler.on('update', function() {
+      console.log('-> bundling...');
+      rebundle();
+    });
+  }
+
+  rebundle();
+}
+
     
 gulp.task('default',['jshint','watch']);
 
@@ -19,32 +50,7 @@ gulp.task('jshint',function(){
     
 });
 gulp.task('build-js',function(){
-   
-   // set up the browserify instance on a task basis
-    var b = browserify({
-        
-        debug: true
-    }); 
-    return b.bundle()
-    .pipe(source('source/javascript/app.js'))
-    .pipe(buffer())
-    .pipe(sourcemaps.init({loadMaps: true}))
-        // Add transformation tasks to the pipeline here.
-        .pipe(uglify())
-        .on('error', gutils.log)
-    .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest('public/assets/javascript'))
-    .pipe(livereload());
-    
-    
-//    return gulp.src('source/javascript/**/*.js')
-//     .pipe(sourcemaps.init())
-//         .pipe(concat('bundle.js'))
-//         //.pipe(gulp.env.type === 'production' ? uglify() : gutils.noop())
-//         .pipe(uglify())
-//     .pipe(sourcemaps.write())
-//     .pipe(gulp.dest('public/assets/javascript')).on('error', gutils.log)
-//     .pipe(livereload());
+   compile(true);
 });
 
 gulp.task('build-css', function() {
@@ -66,3 +72,6 @@ gulp.task('watch',function() {
         gulp.watch('source/scss/**/*.scss',['build-css']); 
         gulp.watch('source/**/*.html',['build-html']); 
 });    
+
+
+
