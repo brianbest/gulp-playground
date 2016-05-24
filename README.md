@@ -7,3 +7,5 @@ This is where I'm playing around with Gulp
 - Browserify & Babel 
 - Source maping & uglyfying 
 
+- Git auto commit?
+

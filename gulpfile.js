@@ -13,6 +13,7 @@ var gulp = require('gulp'),
     babel = require('babelify');
 
 // Browserify Babelify & Watchify on watch
+
 function compile(watch) {
   var bundler = watchify(browserify('./source/javascript/app.js', { debug: true }).transform(babel));
 
@@ -40,8 +41,11 @@ function compile(watch) {
   rebundle();
 }
 
-    
 gulp.task('default',['jshint','watch']);
+
+gulp.task('build-js',function(){
+   compile(true);
+});
 
 gulp.task('jshint',function(){
    return gulp.src('source/javascript/**/*.js')
@@ -49,9 +53,7 @@ gulp.task('jshint',function(){
         .pipe(jshint.reporter('jshint-stylish'))
     
 });
-gulp.task('build-js',function(){
-   compile(true);
-});
+
 
 gulp.task('build-css', function() {
    return gulp.src('source/scss/**/*.scss') 
